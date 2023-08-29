@@ -297,6 +297,9 @@ struct iperf_test
     char     *logfile;				/* --logfile option */
     FILE     *outfile;
 
+    char     *dumpfile_name;		/* --dumpfile option */
+    FILE     *dumpfile;
+
     int       ctrl_sck;
     int       mapped_v4;
     int       listener;

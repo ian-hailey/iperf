@@ -195,6 +195,11 @@ iperf_udp_recv(struct iperf_stream *sp)
 	    d = -d;
 	sp->prev_transit = transit;
 	sp->jitter += (d - sp->jitter) / 16.0;
+
+	if(sp->test->dumpfile) {
+	    fprintf(sp->test->dumpfile, "%lld,%d,%d,%d,%d,%f\n", pcount, sent_time.secs, sent_time.usecs, arrival_time.secs, arrival_time.usecs, d);
+	}
+
     }
     else {
 	if (sp->test->debug)

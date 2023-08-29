@@ -456,6 +456,10 @@ iperf_run_server(struct iperf_test *test)
         if (iperf_open_logfile(test) < 0)
             return -2;
 
+    if (test->dumpfile_name)
+        if (iperf_open_dumpfile(test) < 0)
+            return -2;
+
     if (test->affinity != -1)
 	if (iperf_setaffinity(test, test->affinity) != 0) {
             cleanup_server(test);

@@ -492,6 +492,12 @@ iperf_set_test_logfile(struct iperf_test *ipt, const char *logfile)
 }
 
 void
+iperf_set_test_dumpfile(struct iperf_test *ipt, const char *dumpfile)
+{
+    ipt->dumpfile_name = strdup(dumpfile);
+}
+
+void
 iperf_set_test_rate(struct iperf_test *ipt, uint64_t rate)
 {
     ipt->settings->rate = rate;
@@ -1109,6 +1115,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 	{"pidfile", required_argument, NULL, 'I'},
 	{"logfile", required_argument, NULL, OPT_LOGFILE},
 	{"forceflush", no_argument, NULL, OPT_FORCEFLUSH},
+	{"dumpfile", required_argument, NULL, OPT_DUMPFILE},
 	{"get-server-output", no_argument, NULL, OPT_GET_SERVER_OUTPUT},
 	{"udp-counters-64bit", no_argument, NULL, OPT_UDP_COUNTERS_64BIT},
  	{"no-fq-socket-pacing", no_argument, NULL, OPT_NO_FQ_SOCKET_PACING},
@@ -1557,6 +1564,9 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 	    case OPT_FORCEFLUSH:
 		test->forceflush = 1;
 		break;
+		case OPT_DUMPFILE:
+		test->dumpfile_name = strdup(optarg);
+		break;
 	    case OPT_GET_SERVER_OUTPUT:
 		test->get_server_output = 1;
 		client_flag = 1;
@@ -1819,6 +1829,28 @@ void iperf_close_logfile(struct iperf_test *test)
     if (test->outfile && test->outfile != stdout) {
         fclose(test->outfile);
         test->outfile = NULL;
+    }
+}
+
+/*
+ * Open the file specified by test->dumpfile_name and set test->dumpfile to its' FD.
+ */
+int iperf_open_dumpfile(struct iperf_test *test)
+{
+    test->dumpfile = fopen(test->dumpfile_name, "a+");
+    if (test->dumpfile == NULL) {
+        i_errno = IEDUMPFILE;
+        return -1;
+    }
+
+    return 0;
+}
+
+void iperf_close_dumpfile(struct iperf_test *test)
+{
+    if (test->dumpfile && test->dumpfile != stdout) {
+        fclose(test->dumpfile);
+        test->dumpfile = NULL;
     }
 }
 
@@ -3063,6 +3095,12 @@ iperf_free_test(struct iperf_test *test)
         iperf_close_logfile(test);
     }
 
+    if (test->dumpfile_name) {
+        free(test->dumpfile_name);
+        test->dumpfile_name = NULL;
+        iperf_close_dumpfile(test);
+    }
+
     if (test->server_output_text) {
 	free(test->server_output_text);
 	test->server_output_text = NULL;
@@ -3113,6 +3151,7 @@ iperf_reset_test(struct iperf_test *test)
     int i;
 
     iperf_close_logfile(test);
+    iperf_close_dumpfile(test);
 
     /* Free streams */
     while (!SLIST_EMPTY(&test->streams)) {
