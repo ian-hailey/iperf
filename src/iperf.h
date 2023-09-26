@@ -205,6 +205,7 @@ struct iperf_stream
     int64_t   omitted_packet_count;
     double    jitter;
     double    prev_transit;
+    double    prev_arrival_time;
     int64_t   outoforder_packets;
     int64_t   omitted_outoforder_packets;
     int64_t   cnt_error;

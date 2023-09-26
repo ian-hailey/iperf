@@ -73,7 +73,7 @@ iperf_udp_recv(struct iperf_stream *sp)
     int       r;
     int       size = sp->settings->blksize;
     int       first_packet = 0;
-    double    transit = 0, d = 0;
+    double    transit = 0, d = 0, arrival = 0;
     struct iperf_time sent_time, arrival_time, temp_time;
 
     r = Nread(sp->socket, sp->buffer, size, Pudp);
@@ -186,6 +186,8 @@ iperf_udp_recv(struct iperf_stream *sp)
 	iperf_time_diff(&arrival_time, &sent_time, &temp_time);
 	transit = iperf_time_in_secs(&temp_time);
 
+    iperf_time_diff(&arrival_time, &sent_time, &temp_time);
+
 	/* Hack to handle the first packet by initializing prev_transit. */
 	if (first_packet)
 	    sp->prev_transit = transit;
@@ -196,10 +198,13 @@ iperf_udp_recv(struct iperf_stream *sp)
 	sp->prev_transit = transit;
 	sp->jitter += (d - sp->jitter) / 16.0;
 
+    arrival = iperf_time_in_secs(&arrival_time);
+
 	if(sp->test->dumpfile) {
-	    fprintf(sp->test->dumpfile, "%lld,%d,%d,%d,%d,%f\n", pcount, sent_time.secs, sent_time.usecs, arrival_time.secs, arrival_time.usecs, d);
+	    fprintf(sp->test->dumpfile, "%" PRIu64 ",%d,%d,%d,%d,%f,%f\n", pcount, sent_time.secs, sent_time.usecs, arrival_time.secs, arrival_time.usecs, transit, arrival - sp->prev_arrival_time);
 	}
 
+    sp->prev_arrival_time = arrival;
     }
     else {
 	if (sp->test->debug)
