@@ -53,7 +53,7 @@ getnow( struct iperf_time* nowP, struct iperf_time* nowP2 )
     if ( nowP != NULL )
 	*nowP2 = *nowP;
     else
-	iperf_time_now(nowP2);
+	iperf_time_now(nowP2, 0 );
 }
 
 

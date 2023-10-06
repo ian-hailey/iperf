@@ -279,6 +279,12 @@ iperf_get_test_timestamp_format(struct iperf_test *ipt)
 }
 
 int
+iperf_get_test_clock_realtime(struct iperf_test *ipt)
+{
+    return ipt->clock_realtime;
+}
+
+int
 iperf_get_test_repeating_payload(struct iperf_test *ipt)
 {
     return ipt->repeating_payload;
@@ -591,6 +597,12 @@ void
 iperf_set_test_timestamp_format(struct iperf_test *ipt, const char *tf)
 {
     ipt->timestamp_format = strdup(tf);
+}
+
+void
+iperf_set_test_clock_realtime(struct iperf_test *ipt, int clock_realtime)
+{
+    ipt->clock_realtime = clock_realtime;
 }
 
 void
@@ -1099,6 +1111,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
         {"file", required_argument, NULL, 'F'},
         {"repeating-payload", no_argument, NULL, OPT_REPEATING_PAYLOAD},
         {"timestamps", optional_argument, NULL, OPT_TIMESTAMPS},
+        {"clock-realtime", no_argument, NULL, OPT_CLOCK_REALTIME},
 #if defined(HAVE_CPU_AFFINITY)
         {"affinity", required_argument, NULL, 'A'},
 #endif /* HAVE_CPU_AFFINITY */
@@ -1567,6 +1580,9 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 		case OPT_DUMPFILE:
 		test->dumpfile_name = strdup(optarg);
 		break;
+        case OPT_CLOCK_REALTIME:
+        test->clock_realtime = 1;
+        break;
 	    case OPT_GET_SERVER_OUTPUT:
 		test->get_server_output = 1;
 		client_flag = 1;
@@ -1949,7 +1965,7 @@ iperf_send(struct iperf_test *test, fd_set *write_setP)
 
     for (; multisend > 0; --multisend) {
 	if (no_throttle_check)
-	    iperf_time_now(&now);
+	    iperf_time_now(&now, test->clock_realtime);
 	streams_active = 0;
 	SLIST_FOREACH(sp, &test->streams, streams) {
 	    if ((sp->green_light && sp->sender &&
@@ -1976,7 +1992,7 @@ iperf_send(struct iperf_test *test, fd_set *write_setP)
 	    break;
     }
     if (!no_throttle_check) {   /* Throttle check if was not checked for each send */
-	iperf_time_now(&now);
+	iperf_time_now(&now, test->clock_realtime);
 	SLIST_FOREACH(sp, &test->streams, streams)
 	    if (sp->sender)
 	        iperf_check_throttle(sp, &now);
@@ -2022,7 +2038,7 @@ iperf_init_test(struct iperf_test *test)
     }
 
     /* Init each stream. */
-    if (iperf_time_now(&now) < 0) {
+    if (iperf_time_now(&now, test->clock_realtime) < 0) {
 	i_errno = IEINITTEST;
 	return -1;
     }
@@ -2055,7 +2071,7 @@ iperf_create_send_timers(struct iperf_test * test)
     struct iperf_stream *sp;
     TimerClientData cd;
 
-    if (iperf_time_now(&now) < 0) {
+    if (iperf_time_now(&now, test->clock_realtime) < 0) {
 	i_errno = IEINITTEST;
 	return -1;
     }
@@ -3284,7 +3300,7 @@ iperf_reset_stats(struct iperf_test *test)
 
     test->bytes_sent = 0;
     test->blocks_sent = 0;
-    iperf_time_now(&now);
+    iperf_time_now(&now, test->clock_realtime);
     SLIST_FOREACH(sp, &test->streams, streams) {
 	sp->omitted_packet_count = sp->packet_count;
         sp->omitted_cnt_error = sp->cnt_error;
@@ -3335,7 +3351,7 @@ iperf_stats_callback(struct iperf_test *test)
         else /* or use timestamp from beginning */
             memcpy(&temp.interval_start_time, &rp->start_time, sizeof(struct iperf_time));
         /* now save time of end of this interval */
-        iperf_time_now(&rp->end_time);
+        iperf_time_now(&rp->end_time, test->clock_realtime);
         memcpy(&temp.interval_end_time, &rp->end_time, sizeof(struct iperf_time));
         iperf_time_diff(&temp.interval_start_time, &temp.interval_end_time, &temp_time);
         temp.interval_duration = iperf_time_in_secs(&temp_time);

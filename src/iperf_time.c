@@ -36,11 +36,11 @@
 #include <time.h>
 
 int
-iperf_time_now(struct iperf_time *time1)
+iperf_time_now(struct iperf_time *time1, int clock_realtime)
 {
     struct timespec ts;
     int result;
-    result = clock_gettime(CLOCK_REALTIME, &ts);
+    result = clock_gettime(clock_realtime ? CLOCK_REALTIME : CLOCK_MONOTONIC, &ts);
     if (result == 0) {
         time1->secs = (uint32_t) ts.tv_sec;
         time1->usecs = (uint32_t) ts.tv_nsec / 1000;
@@ -53,10 +53,11 @@ iperf_time_now(struct iperf_time *time1)
 #include <sys/time.h>
 
 int
-iperf_time_now(struct iperf_time *time1)
+iperf_time_now(struct iperf_time *time1, int clock_realtime)
 {
     struct timeval tv;
     int result;
+    ((void)(clock_realtime)); // unused avoid warning
     result = gettimeofday(&tv, NULL);
     time1->secs = tv.tv_sec;
     time1->usecs = tv.tv_usec;

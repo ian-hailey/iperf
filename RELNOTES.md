@@ -1,6 +1,13 @@
 iperf3 Release Notes
 ====================
 
+iperf-3.14.1 2023-09-07
+---------------------
+
+* Optionally save UDP server packets time stamp info to dump file
+
+  * Use CLOCK_REALTIME via option --clock-realtime
+
 iperf-3.14 2023-07-07
 ---------------------
 

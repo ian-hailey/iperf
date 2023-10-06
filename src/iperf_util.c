@@ -200,13 +200,13 @@ cpu_util(double pcpu[3])
     double systemdiff;
 
     if (pcpu == NULL) {
-        iperf_time_now(&last);
+        iperf_time_now(&last, 0);
         clast = clock();
 	getrusage(RUSAGE_SELF, &rlast);
         return;
     }
 
-    iperf_time_now(&now);
+    iperf_time_now(&now, 0);
     ctemp = clock();
     getrusage(RUSAGE_SELF, &rtemp);
 

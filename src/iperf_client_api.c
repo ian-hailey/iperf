@@ -176,7 +176,7 @@ create_client_timers(struct iperf_test * test)
         return -1;
     }
 
-    if (iperf_time_now(&now) < 0) {
+    if (iperf_time_now(&now, test->clock_realtime) < 0) {
 	i_errno = IEINITTEST;
 	return -1;
     }
@@ -240,7 +240,7 @@ create_client_omit_timer(struct iperf_test * test)
 	test->omit_timer = NULL;
         test->omitting = 0;
     } else {
-	if (iperf_time_now(&now) < 0) {
+	if (iperf_time_now(&now, test->clock_realtime) < 0) {
 	    i_errno = IEINITTEST;
 	    return -1;
 	}
@@ -566,7 +566,7 @@ iperf_run_client(struct iperf_test * test)
     while (test->state != IPERF_DONE) {
 	memcpy(&read_set, &test->read_set, sizeof(fd_set));
 	memcpy(&write_set, &test->write_set, sizeof(fd_set));
-	iperf_time_now(&now);
+	iperf_time_now(&now, test->clock_realtime);
 	timeout = tmr_timeout(&now);
 
         // In reverse active mode client ensures data is received
@@ -591,7 +591,7 @@ iperf_run_client(struct iperf_test * test)
         } else if (result == 0 && test->state == TEST_RUNNING && rcv_timeout_us > 0) {
             // If nothing was received in non-reverse running state then probably something got stack -
             // either client, server or network, and test should be terminated.
-            iperf_time_now(&now);
+            iperf_time_now(&now, test->clock_realtime);
             if (iperf_time_diff(&now, &last_receive_time, &diff_time) == 0) {
                 t_usecs = iperf_time_in_usecs(&diff_time);
                 if (t_usecs > rcv_timeout_us) {
@@ -604,7 +604,7 @@ iperf_run_client(struct iperf_test * test)
 
 	if (result > 0) {
             if (rcv_timeout_us > 0) {
-                iperf_time_now(&last_receive_time);
+                iperf_time_now(&last_receive_time, test->clock_realtime);
             }
 	    if (FD_ISSET(test->ctrl_sck, &read_set)) {
  	        if (iperf_handle_message_client(test) < 0) {
@@ -647,7 +647,7 @@ iperf_run_client(struct iperf_test * test)
 
 
             /* Run the timers. */
-            iperf_time_now(&now);
+            iperf_time_now(&now, test->clock_realtime);
             tmr_run(&now);
 
 	    /*

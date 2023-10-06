@@ -181,7 +181,7 @@ iperf_udp_recv(struct iperf_stream *sp)
 	 * computation does not require knowing the round-trip
 	 * time.
 	 */
-	iperf_time_now(&arrival_time);
+	iperf_time_now(&arrival_time, sp->test->clock_realtime);
 
 	iperf_time_diff(&arrival_time, &sent_time, &temp_time);
 	transit = iperf_time_in_secs(&temp_time);
@@ -201,7 +201,7 @@ iperf_udp_recv(struct iperf_stream *sp)
     arrival = iperf_time_in_secs(&arrival_time);
 
 	if(sp->test->dumpfile) {
-	    fprintf(sp->test->dumpfile, "%" PRIu64 ",%d,%d,%d,%d,%f,%f\n", pcount, sent_time.secs, sent_time.usecs, arrival_time.secs, arrival_time.usecs, transit, arrival - sp->prev_arrival_time);
+	    fprintf(sp->test->dumpfile, "%" PRIu64 ",%d,%d,%d,%d,%f,%f,%d\n", pcount, sent_time.secs, sent_time.usecs, arrival_time.secs, arrival_time.usecs, transit, arrival - sp->prev_arrival_time, r);
 	}
 
     sp->prev_arrival_time = arrival;
@@ -226,7 +226,7 @@ iperf_udp_send(struct iperf_stream *sp)
     int       size = sp->settings->blksize;
     struct iperf_time before;
 
-    iperf_time_now(&before);
+    iperf_time_now(&before, sp->test->clock_realtime);
 
     ++sp->packet_count;
 

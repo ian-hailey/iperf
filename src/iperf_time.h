@@ -34,7 +34,7 @@ struct iperf_time {
     uint32_t usecs;
 };
 
-int iperf_time_now(struct iperf_time *time1);
+int iperf_time_now(struct iperf_time *time1, int clock_realtime);
 
 void iperf_time_add_usecs(struct iperf_time *time1, uint64_t usecs);
 

@@ -190,7 +190,11 @@ the executable.
                  to customize the timestamps, see strftime(3).  If this  optional
                  format  is given, the = must immediately follow the --timestamps
                  option with no whitespace intervening.
-   
+
+          --clock-realtime
+                    use real time clock for internal timstamps so allow delay
+                    measurements between sender and receiver.
+
           --rcv-timeout #
                  set idle timeout for receiving data  during  active  tests.  The
                  receiver will halt a test if no data is received from the sender

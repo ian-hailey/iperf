@@ -301,7 +301,7 @@ create_server_timers(struct iperf_test * test)
     int state_transitions = 10; /* number of state transitions in iperf3 */
     int grace_period = max_rtt * state_transitions;
 
-    if (iperf_time_now(&now) < 0) {
+    if (iperf_time_now(&now, test->clock_realtime) < 0) {
 	i_errno = IEINITTEST;
 	return -1;
     }
@@ -362,7 +362,7 @@ create_server_omit_timer(struct iperf_test * test)
 	test->omit_timer = NULL;
 	test->omitting = 0;
     } else {
-	if (iperf_time_now(&now) < 0) {
+	if (iperf_time_now(&now, test->clock_realtime) < 0) {
 	    i_errno = IEINITTEST;
 	    return -1;
 	}
@@ -488,7 +488,7 @@ iperf_run_server(struct iperf_test *test)
         return -2;
     }
 
-    iperf_time_now(&last_receive_time); // Initialize last time something was received
+    iperf_time_now(&last_receive_time, test->clock_realtime); // Initialize last time something was received
 
     test->state = IPERF_START;
     send_streams_accepted = 0;
@@ -507,7 +507,7 @@ iperf_run_server(struct iperf_test *test)
         memcpy(&read_set, &test->read_set, sizeof(fd_set));
         memcpy(&write_set, &test->write_set, sizeof(fd_set));
 
-	iperf_time_now(&now);
+	iperf_time_now(&now, test->clock_realtime);
 	timeout = tmr_timeout(&now);
 
         // Ensure select() will timeout to allow handling error cases that require server restart
@@ -540,7 +540,7 @@ iperf_run_server(struct iperf_test *test)
             // If nothing was received during the specified time (per state)
             // then probably something got stack either at the client, server or network,
             // and Test should be forced to end.
-            iperf_time_now(&now);
+            iperf_time_now(&now, test->clock_realtime);
             t_usecs = 0;
             if (iperf_time_diff(&now, &last_receive_time, &diff_time) == 0) {
                 t_usecs = iperf_time_in_usecs(&diff_time);
@@ -575,7 +575,7 @@ iperf_run_server(struct iperf_test *test)
         }
 
 	if (result > 0) {
-            iperf_time_now(&last_receive_time);
+            iperf_time_now(&last_receive_time, test->clock_realtime);
             if (FD_ISSET(test->listener, &read_set)) {
                 if (test->state != CREATE_STREAMS) {
                     if (iperf_accept(test) < 0) {
@@ -834,7 +834,7 @@ iperf_run_server(struct iperf_test *test)
 	if (result == 0 ||
 	    (timeout != NULL && timeout->tv_sec == 0 && timeout->tv_usec == 0)) {
 	    /* Run the timers. */
-	    iperf_time_now(&now);
+	    iperf_time_now(&now, test->clock_realtime);
 	    tmr_run(&now);
 	}
     }

@@ -91,6 +91,7 @@ typedef uint64_t iperf_size_t;
 #define OPT_RCV_TIMEOUT 27
 #define OPT_SND_TIMEOUT 28
 #define OPT_DUMPFILE 29
+#define OPT_CLOCK_REALTIME 30
 
 /* states */
 #define TEST_START 1
@@ -134,6 +135,7 @@ int	iperf_get_test_num_streams( struct iperf_test* ipt );
 int	iperf_get_test_repeating_payload( struct iperf_test* ipt );
 int	iperf_get_test_timestamps( struct iperf_test* ipt );
 const char* iperf_get_test_timestamp_format( struct iperf_test* ipt );
+int iperf_get_test_clock_realtime(struct iperf_test *ipt);
 int	iperf_get_test_bind_port( struct iperf_test* ipt );
 int	iperf_get_test_server_port( struct iperf_test* ipt );
 char*	iperf_get_test_server_hostname( struct iperf_test* ipt );
@@ -180,6 +182,7 @@ void	iperf_set_test_socket_bufsize( struct iperf_test* ipt, int socket_bufsize )
 void	iperf_set_test_num_streams( struct iperf_test* ipt, int num_streams );
 void	iperf_set_test_repeating_payload( struct iperf_test* ipt, int repeating_payload );
 void	iperf_set_test_timestamps( struct iperf_test* ipt, int timestamps );
+void	iperf_set_clock_realtime( struct iperf_test* ipt, int clock_realtime );
 void	iperf_set_test_timestamp_format( struct iperf_test*, const char *tf );
 void	iperf_set_test_role( struct iperf_test* ipt, char role );
 void	iperf_set_test_server_hostname( struct iperf_test* ipt, const char* server_hostname );
