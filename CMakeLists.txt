@@ -27,7 +27,7 @@ add_library(${PROJECT_NAME} STATIC ${LIBIPERF_SRCS})
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER ${LIBIPERF_HDRS})
 
 add_executable(iperf3 src/main.c)
-target_link_libraries(iperf3 ${PROJECT_NAME})
+target_link_libraries(iperf3 ${PROJECT_NAME} m)
 
 install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION lib

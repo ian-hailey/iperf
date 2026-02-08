@@ -80,5 +80,5 @@ set(PKG_TARNAME "${PKG_NAME}" CACHE INTERNAL "Package tarname")
 set(PKG_VERSION "3.6+")
 set(PKG_STRING "${PKG_NAME} ${PKG_VERSION}")
 set(PKG_URL "https://software.es.net/iperf/" CACHE INTERNAL "Package URL")
-set(PKG_BUGREPORT "https://github.com/esnet/iperf" CACHE INTERNAL "Packaage bug report")
+set(PKG_BUGREPORT "https://github.com/esnet/iperf" CACHE INTERNAL "Package bug report")
 

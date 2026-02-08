@@ -130,6 +130,7 @@ const char usage_longstr[] = "Usage: iperf3 [-s|-c host] [options]\n"
                            "  --forceflush              force flushing output at every interval\n"
                            "  --timestamps<=format>     emit a timestamp at the start of each output line\n"
                            "                            (optional \"=\" and format string as per strftime(3))\n"
+                           "  --clock-realtime          use CLOCK_REALTIME for internal timestamps"
 
                            "  --rcv-timeout #           idle timeout for receiving data (default %d ms)\n"
 #if defined(HAVE_TCP_USER_TIMEOUT)
